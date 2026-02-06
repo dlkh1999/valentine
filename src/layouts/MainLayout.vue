@@ -15,29 +15,32 @@
       ></span>
     </div>
 
-    <q-btn ref="btnRef" class="fly-btn" label="No" @mouseenter="onEnter" @click="onClick" />
+    <q-btn ref="btnRef" class="fly-btn" label="Noo" @mouseenter="onEnter" @click="onClick" />
 
     <q-btn
       v-for="decoy in decoys"
       :key="decoy.id"
       class="fly-btn decoy"
       :style="{ left: decoy.x + 'px', top: decoy.y + 'px' }"
-      label="Catch me"
+      label="No"
       @click="removeDecoy(decoy.id)"
     />
 
     <q-dialog v-model="showWin">
       <q-card class="valentine-card">
         <q-card-section class="valentine-header"> You must be my Valentine </q-card-section>
+        <q-card-section v-if="clickMessage" class="valentine-sub">
+          {{ clickMessage }}
+        </q-card-section>
         <q-card-actions align="center" class="valentine-actions">
-          <q-btn color="pink-4" outline rounded label="No" @click="onNo" />
+          <q-btn color="pink-4" outline rounded label="No" @click="onNo" v-if="onClickCount >= 5" />
         </q-card-actions>
       </q-card>
     </q-dialog>
     <q-dialog v-model="showFollowup">
       <q-card class="valentine-card">
         <q-card-section class="valentine-header">See you on Valentine’s Day</q-card-section>
-        <q-card-section class="valentine-sub">I’m excited already.</q-card-section>
+        <!-- <q-card-section class="valentine-sub">I’m excited already.</q-card-section> -->
       </q-card>
     </q-dialog>
     <div v-if="showNoOverlay" class="no-overlay" aria-live="assertive">
@@ -47,16 +50,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, computed } from 'vue';
 import type { QBtn } from 'quasar';
 
 type Decoy = { id: number; x: number; y: number };
 
 const btnRef = ref<QBtn | null>(null);
-const moveCount = ref(4);
+const moveCount = ref(0);
 const maxMoves = 5;
 
-const onClickCount = ref(5);
+const onClickCount = ref(0);
 const maxOnClick = 5;
 
 const decoys = ref<Decoy[]>([]);
@@ -87,12 +90,27 @@ const hearts = [
   { size: 28, left: 24, duration: 24, delay: 11, drift: -40 },
 ];
 
+const clickMessages = [
+  'Please don`t say no',
+  'Don`t make me sad',
+  'Are you sure???',
+  'You are breaking my heart </3',
+];
+const clickMessage = computed(() => clickMessages[onClickCount.value - 1] ?? '');
+
 async function onClick() {
+  onClickCount.value += 1;
+  if (onClickCount.value >= 1 && onClickCount.value <= 4) {
+    showWin.value = true;
+    await moveRandom();
+    return;
+  }
+
   if (onClickCount.value >= maxOnClick && decoys.value.length === 0) {
     showWin.value = true;
     return;
   }
-  onClickCount.value += 1;
+
   await moveRandom();
 }
 
