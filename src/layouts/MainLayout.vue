@@ -14,7 +14,6 @@
         }"
       ></span>
     </div>
-    <q-btn class="yes-btn" label="Yes" />
 
     <q-btn ref="btnRef" class="fly-btn" label="Catch me" @mouseenter="onEnter" @click="onClick" />
 
@@ -28,9 +27,11 @@
     />
 
     <q-dialog v-model="showWin">
-      <q-card>
-        <q-card-section class="text-h6">Nice!</q-card-section>
-        <q-card-section>You clicked enough.</q-card-section>
+      <q-card class="valentine-card">
+        <q-card-section class="valentine-header"> You must go to Valentine with me </q-card-section>
+        <q-card-actions align="center" class="valentine-actions">
+          <q-btn color="pink-4" outline rounded label="No" />
+        </q-card-actions>
       </q-card>
     </q-dialog>
   </q-layout>
@@ -73,7 +74,7 @@ const hearts = [
 ];
 
 async function onClick() {
-  if (onClickCount.value >= maxOnClick) {
+  if (onClickCount.value >= maxOnClick && decoys.value.length === 0) {
     showWin.value = true;
     return;
   }
@@ -203,6 +204,27 @@ const onEnter = async () => {
   animation-delay: var(--delay);
   opacity: 0.85;
   filter: drop-shadow(0 6px 10px rgba(255, 90, 122, 0.35));
+}
+
+.valentine-card {
+  width: min(92vw, 420px);
+  border-radius: 20px;
+  background: linear-gradient(160deg, #ffffff 0%, #fff2f6 45%, #ffe1ea 100%);
+  box-shadow: 0 18px 40px rgba(255, 90, 122, 0.25);
+  padding: 8px 6px 12px;
+}
+
+.valentine-header {
+  font-size: 22px;
+  font-weight: 700;
+  color: #c81f4a;
+  text-align: center;
+  padding: 20px 16px 8px;
+}
+
+.valentine-actions {
+  gap: 10px;
+  padding: 0 16px 18px;
 }
 
 .love::before,
