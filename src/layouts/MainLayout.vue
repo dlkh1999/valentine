@@ -1,6 +1,7 @@
 <template>
   <q-layout view="lHh Lpr lFf" class="no-scroll love-layout">
     <div class="love-bg" aria-hidden="true">
+      <span class="heart-center"></span>
       <span
         v-for="(heart, i) in hearts"
         :key="i"
@@ -28,7 +29,9 @@
 
     <q-dialog v-model="showWin">
       <q-card class="valentine-card">
-        <q-card-section class="valentine-header"> You must be my Valentine </q-card-section>
+        <q-card-section class="valentine-header" v-if="onClickCount >= 5">
+          You must be my Valentine
+        </q-card-section>
         <q-card-section v-if="clickMessage" class="valentine-sub">
           {{ clickMessage }}
         </q-card-section>
@@ -40,7 +43,6 @@
     <q-dialog v-model="showFollowup">
       <q-card class="valentine-card">
         <q-card-section class="valentine-header">See you on Valentine’s Day</q-card-section>
-        <!-- <q-card-section class="valentine-sub">I’m excited already.</q-card-section> -->
       </q-card>
     </q-dialog>
     <div v-if="showNoOverlay" class="no-overlay" aria-live="assertive">
@@ -247,6 +249,42 @@ const onEnter = async () => {
   z-index: 0;
 }
 
+.heart-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 320px;
+  height: 320px;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  background: radial-gradient(circle at 30% 30%, #ffb3c7 0%, #ff5a7a 45%, #d8164c 100%);
+  box-shadow:
+    0 0 50px rgba(255, 90, 122, 0.45),
+    0 0 120px rgba(255, 90, 122, 0.35),
+    0 0 200px rgba(255, 90, 122, 0.25);
+  opacity: 0.6;
+  filter: blur(0.2px);
+}
+
+.heart-center::before,
+.heart-center::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 30% 30%, #ffb3c7 0%, #ff5a7a 45%, #d8164c 100%);
+  border-radius: 50%;
+}
+
+.heart-center::before {
+  top: -50%;
+  left: 0;
+}
+
+.heart-center::after {
+  left: 50%;
+  top: 0;
+}
+
 .love {
   --size: 16px;
   --left: 50%;
@@ -277,6 +315,14 @@ const onEnter = async () => {
 }
 
 .valentine-header {
+  font-size: 22px;
+  font-weight: 700;
+  color: #c81f4a;
+  text-align: center;
+  padding: 20px 16px 8px;
+}
+
+.valentine-sub {
   font-size: 22px;
   font-weight: 700;
   color: #c81f4a;
