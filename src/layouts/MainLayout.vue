@@ -69,7 +69,7 @@ let decoyId = 1;
 
 let regenTimer: number | null = null;
 const timeLimitMs = 60000;
-const decoyCount = 30;
+const decoyCount = 1;
 
 const showWin = ref(false);
 const showFollowup = ref(false);
@@ -109,7 +109,7 @@ const shrinkOnce = async (step: number, total: number) => {
   if (!el) return;
   el.style.transformOrigin = 'center';
   el.style.transition = 'transform 220ms ease';
-  const scale = 1 - (total - step + 1) * 0.12;
+  const scale = 1 - (total - step + 1) * 0.22;
   el.style.transform = `scale(${scale})`;
   await sleep(260);
 };
