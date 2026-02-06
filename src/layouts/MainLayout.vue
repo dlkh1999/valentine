@@ -15,7 +15,7 @@
       ></span>
     </div>
 
-    <q-btn ref="btnRef" class="fly-btn" label="Catch me" @mouseenter="onEnter" @click="onClick" />
+    <q-btn ref="btnRef" class="fly-btn" label="No" @mouseenter="onEnter" @click="onClick" />
 
     <q-btn
       v-for="decoy in decoys"
@@ -28,12 +28,21 @@
 
     <q-dialog v-model="showWin">
       <q-card class="valentine-card">
-        <q-card-section class="valentine-header"> You must go to Valentine with me </q-card-section>
+        <q-card-section class="valentine-header"> You must be my Valentine </q-card-section>
         <q-card-actions align="center" class="valentine-actions">
-          <q-btn color="pink-4" outline rounded label="No" />
+          <q-btn color="pink-4" outline rounded label="No" @click="onNo" />
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <q-dialog v-model="showFollowup">
+      <q-card class="valentine-card">
+        <q-card-section class="valentine-header">See you on Valentine’s Day</q-card-section>
+        <q-card-section class="valentine-sub">I’m excited already.</q-card-section>
+      </q-card>
+    </q-dialog>
+    <div v-if="showNoOverlay" class="no-overlay" aria-live="assertive">
+      <div v-for="(item, i) in noPositions" :key="i" class="no-msg" :style="noStyle(item)">YES</div>
+    </div>
   </q-layout>
 </template>
 
@@ -58,6 +67,11 @@ const timeLimitMs = 5000;
 const decoyCount = 2;
 
 const showWin = ref(false);
+const showFollowup = ref(false);
+let followupTimer: number | null = null;
+type NoMsg = { top: number; left: number; rotate: number; delay: number };
+const showNoOverlay = ref(false);
+const noPositions = ref<NoMsg[]>([]);
 const hearts = [
   { size: 18, left: 8, duration: 18, delay: 0, drift: 24 },
   { size: 12, left: 16, duration: 14, delay: 3, drift: -18 },
@@ -81,6 +95,36 @@ async function onClick() {
   onClickCount.value += 1;
   await moveRandom();
 }
+
+const onNo = () => {
+  const count = 1000;
+  const items: NoMsg[] = [];
+  for (let i = 0; i < count; i += 1) {
+    items.push({
+      top: Math.random() * 94 + 3,
+      left: Math.random() * 94 + 3,
+      rotate: Math.random() * 60 - 30,
+      delay: (i % 10) * 0.05,
+    });
+  }
+  noPositions.value = items;
+  showNoOverlay.value = true;
+  showWin.value = false;
+  if (followupTimer != null) {
+    clearTimeout(followupTimer);
+  }
+  followupTimer = window.setTimeout(() => {
+    showFollowup.value = true;
+    showNoOverlay.value = false;
+  }, 5000);
+};
+
+const noStyle = (item: NoMsg) => ({
+  top: `${item.top}%`,
+  left: `${item.left}%`,
+  transform: `rotate(${item.rotate}deg)`,
+  animationDelay: `${item.delay}s`,
+});
 
 const moveRandom = async () => {
   await nextTick();
@@ -261,6 +305,24 @@ const onEnter = async () => {
   z-index: 1;
 }
 
+.no-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 70, 110, 0.2);
+  backdrop-filter: blur(2px);
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.no-msg {
+  position: absolute;
+  font-size: 28px;
+  font-weight: 800;
+  color: #c81f4a;
+  text-shadow: 0 6px 16px rgba(200, 31, 74, 0.25);
+  animation: pop 0.6s ease-out both;
+}
+
 @keyframes float-up {
   0% {
     transform: translateY(0) rotate(-45deg);
@@ -282,6 +344,17 @@ const onEnter = async () => {
   }
   50% {
     margin-left: var(--drift);
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
   }
 }
 </style>
