@@ -16,7 +16,7 @@
       ></span>
     </div>
 
-    <q-btn ref="btnRef" class="fly-btn" label="Noo" @mouseenter="onEnter" @click="onClick" />
+    <q-btn ref="btnRef" class="fly-btn" label="No" @mouseenter="onEnter" @click="onClick" />
 
     <q-btn
       v-for="decoy in decoys"
@@ -59,7 +59,7 @@ type Decoy = { id: number; x: number; y: number };
 
 const btnRef = ref<QBtn | null>(null);
 const moveCount = ref(0);
-const maxMoves = 15;
+const maxMoves = 10;
 
 const onClickCount = ref(0);
 const maxOnClick = 5;
@@ -68,8 +68,8 @@ const decoys = ref<Decoy[]>([]);
 let decoyId = 1;
 
 let regenTimer: number | null = null;
-const timeLimitMs = 30000;
-const decoyCount = 10;
+const timeLimitMs = 60000;
+const decoyCount = 30;
 
 const showWin = ref(false);
 const showFollowup = ref(false);
