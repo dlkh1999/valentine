@@ -59,7 +59,7 @@ type Decoy = { id: number; x: number; y: number };
 
 const btnRef = ref<QBtn | null>(null);
 const moveCount = ref(0);
-const maxMoves = 5;
+const maxMoves = 15;
 
 const onClickCount = ref(0);
 const maxOnClick = 5;
@@ -68,8 +68,8 @@ const decoys = ref<Decoy[]>([]);
 let decoyId = 1;
 
 let regenTimer: number | null = null;
-const timeLimitMs = 5000;
-const decoyCount = 2;
+const timeLimitMs = 30000;
+const decoyCount = 10;
 
 const showWin = ref(false);
 const showFollowup = ref(false);
@@ -77,6 +77,7 @@ let followupTimer: number | null = null;
 type NoMsg = { top: number; left: number; rotate: number; delay: number };
 const showNoOverlay = ref(false);
 const noPositions = ref<NoMsg[]>([]);
+const winClicksLeft = ref(0);
 const hearts = [
   { size: 18, left: 8, duration: 18, delay: 0, drift: 24 },
   { size: 12, left: 16, duration: 14, delay: 3, drift: -18 },
@@ -100,6 +101,19 @@ const clickMessages = [
 ];
 const clickMessage = computed(() => clickMessages[onClickCount.value - 1] ?? '');
 
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+const shrinkOnce = async (step: number, total: number) => {
+  await nextTick();
+  const el = btnRef.value?.$el as HTMLElement | undefined;
+  if (!el) return;
+  el.style.transformOrigin = 'center';
+  el.style.transition = 'transform 220ms ease';
+  const scale = 1 - (total - step + 1) * 0.12;
+  el.style.transform = `scale(${scale})`;
+  await sleep(260);
+};
+
 async function onClick() {
   onClickCount.value += 1;
   if (onClickCount.value >= 1 && onClickCount.value <= 4) {
@@ -109,7 +123,14 @@ async function onClick() {
   }
 
   if (onClickCount.value >= maxOnClick && decoys.value.length === 0) {
-    showWin.value = true;
+    if (winClicksLeft.value === 0) {
+      winClicksLeft.value = 5;
+    }
+    await shrinkOnce(winClicksLeft.value, 5);
+    winClicksLeft.value -= 1;
+    if (winClicksLeft.value <= 0) {
+      showWin.value = true;
+    }
     return;
   }
 
@@ -218,7 +239,7 @@ const onEnter = async () => {
   moveCount.value += 1;
   await moveRandom();
 
-  if (moveCount.value === 5) {
+  if (moveCount.value === maxMoves) {
     await startRegenLoop();
   }
 };
@@ -253,36 +274,44 @@ const onEnter = async () => {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 320px;
-  height: 320px;
-  transform: translate(-50%, -50%) rotate(-45deg);
+  width: 340px;
+  height: 360px;
+  transform: translate(-50%, -50%);
   background: radial-gradient(circle at 30% 30%, #ffb3c7 0%, #ff5a7a 45%, #d8164c 100%);
   box-shadow:
     0 0 50px rgba(255, 90, 122, 0.45),
     0 0 120px rgba(255, 90, 122, 0.35),
     0 0 200px rgba(255, 90, 122, 0.25);
   opacity: 0.6;
-  filter: blur(0.2px);
+  filter: blur(0.4px);
+  animation: heart-glow 2.5s ease-in-out infinite;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M256 448l-35.3-32.3C122.6 320.8 64 265.6 64 192c0-53 43-96 96-96 35.3 0 69.3 18.4 88 48 18.7-29.6 52.7-48 88-48 53 0 96 43 96 96 0 73.6-58.6 128.8-156.7 223.7L256 448z' fill='%23000'/%3E%3C/svg%3E");
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: 100% 100%;
+  /* mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M256 448l-35.3-32.3C122.6 320.8 64 265.6 64 192c0-53 43-96 96-96 35.3 0 69.3 18.4 88 48 18.7-29.6 52.7-48 88-48 53 0 96 43 96 96 0 73.6-58.6 128.8-156.7 223.7L256 448z' fill='%23000'/%3E%3C/svg%3E"); */
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M256 448C256 448 48 320 48 176C48 104 104 48 176 48C216 48 248 72 256 96C264 72 296 48 336 48C408 48 464 104 464 176C464 320 256 448 256 448Z' fill='%23000'/%3E%3C/svg%3E");
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: 100% 100%;
 }
 
-.heart-center::before,
-.heart-center::after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at 30% 30%, #ffb3c7 0%, #ff5a7a 45%, #d8164c 100%);
-  border-radius: 50%;
-}
-
-.heart-center::before {
-  top: -50%;
-  left: 0;
-}
-
-.heart-center::after {
-  left: 50%;
-  top: 0;
+@keyframes heart-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+    box-shadow:
+      0 0 40px rgba(255, 90, 122, 0.35),
+      0 0 110px rgba(255, 90, 122, 0.3),
+      0 0 180px rgba(255, 90, 122, 0.2);
+  }
+  50% {
+    opacity: 1;
+    box-shadow:
+      0 0 70px rgba(255, 90, 122, 0.55),
+      0 0 150px rgba(255, 90, 122, 0.45),
+      0 0 240px rgba(255, 90, 122, 0.35);
+  }
 }
 
 .love {
