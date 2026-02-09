@@ -331,7 +331,7 @@ const onEnter = async () => {
 };
 
 function nextRound() {
-  void router.push('/first');
+  void router.push('/second');
 }
 </script>
 
