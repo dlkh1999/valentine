@@ -221,8 +221,8 @@ const onCardClick = (index: number) => {
   gap: 8px;
   justify-content: center;
   align-items: center;
-  --cell-size: clamp(40px, 9.5vh, 80px);
-  max-width: 95vw;
+  --cell-size: clamp(32px, 8.5vw, 80px);
+  max-width: 96vw;
   position: relative;
   z-index: 1;
 }
@@ -293,7 +293,7 @@ const onCardClick = (index: number) => {
 }
 
 .win-card {
-  width: min(90vw, 360px);
+  width: min(92vw, 360px);
   border-radius: 18px;
   background: linear-gradient(160deg, #ffffff 0%, #fff2f6 45%, #ffe1ea 100%);
   box-shadow: 0 18px 40px rgba(255, 90, 122, 0.25);
@@ -313,6 +313,25 @@ const onCardClick = (index: number) => {
   color: #7b2a3e;
   text-align: center;
   padding: 0 16px 14px;
+}
+
+@media (max-width: 480px) {
+  .heart-grid {
+    gap: 4px;
+    --cell-size: clamp(26px, 8.8vw, 56px);
+  }
+
+  .card-face {
+    border-radius: 6px;
+  }
+
+  .win-title {
+    font-size: 20px;
+  }
+
+  .win-sub {
+    font-size: 13px;
+  }
 }
 
 @keyframes wrong-flash {
